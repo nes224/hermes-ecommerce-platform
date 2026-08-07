@@ -1,0 +1,26 @@
+# Binaries & Build outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+dist/
+.next/
+out/
+build/
+node_modules/
+
+# Environment Variables & Secrets (สำคัญมาก!)
+.env
+.env*.local
+*.pem
+*.key
+secrets.yaml
+
+# IDEs & System files
+.vscode/
+.idea/
+.DS_Store
+*.swp
