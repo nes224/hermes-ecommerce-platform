@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hermes-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hermes_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hermes_password}
+      POSTGRES_DB: hermes_user
+      # เพิ่ม hermes_auth ต่อท้ายตรงนี้
+      POSTGRES_MULTIPLE_DATABASES: hermes_auth,hermes_order,hermes_inventory,hermes_payment
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-multiple-db.sh:/docker-entrypoint-initdb.d/init-multiple-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hermes_admin}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local

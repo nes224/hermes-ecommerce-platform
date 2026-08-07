@@ -12,9 +12,11 @@ out/
 build/
 node_modules/
 
-# Environment Variables & Secrets (สำคัญมาก!)
+# Environment Variables & Secrets (รวมทั้ง .env และ app.env)
 .env
 .env*.local
+app.env
+app.env*.local
 *.pem
 *.key
 secrets.yaml
