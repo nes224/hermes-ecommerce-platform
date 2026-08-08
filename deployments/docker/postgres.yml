@@ -12,7 +12,7 @@ services:
       # เพิ่ม hermes_auth ต่อท้ายตรงนี้
       POSTGRES_MULTIPLE_DATABASES: hermes_auth,hermes_order,hermes_inventory,hermes_payment
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-multiple-db.sh:/docker-entrypoint-initdb.d/init-multiple-db.sh:ro

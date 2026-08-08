@@ -1,21 +1,28 @@
-DB_URL=postgresql://root:secret@localhost:5432/hermes_user?sslmode=disable
+-include app.env
+export
 
-.PHONY: sqlc migrate-up migrate-down seed-admin run
+MIGRATION_PATH = db/migrations
 
+.PHONY: migrate-up migrate-down migrate-up1 migrate-down1 migrate-create
 # Generate Go code from SQL queries
 sqlc:
 	sqlc generate
 
-# Create new migration file (usage: make migrate-create name=init_schema)
-migrate-create:
-	migrate create -ext sql -dir db/migrations -seq $(name)
-
-# Database Migrations
 migrate-up:
-	golang-migrate -path db/migrations -database "$(DB_URL)" -verbose up
+	migrate -path $(MIGRATION_PATH) -database "$(DB_URL)" -verbose up
 
 migrate-down:
-	golang-migrate -path db/migrations -database "$(DB_URL)" -verbose down
+	migrate -path $(MIGRATION_PATH) -database "$(DB_URL)" -verbose down
+
+migrate-up1:
+	migrate -path $(MIGRATION_PATH) -database "$(DB_URL)" -verbose up 1
+
+migrate-down1:
+	migrate -path $(MIGRATION_PATH) -database "$(DB_URL)" -verbose down 1
+
+# แถม: คำสั่งสร้างไฟล์ Migration ใหม่ (ใช้: make migrate-create name=create_users_table)
+migrate-create:
+	migrate create -ext sql -dir $(MIGRATION_PATH) -seq $(name)
 
 # Run App with Admin Seeding Flag
 seed-admin:
