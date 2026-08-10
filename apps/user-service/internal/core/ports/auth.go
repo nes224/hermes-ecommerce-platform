@@ -1,0 +1,48 @@
+package ports
+
+import (
+	"context"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type Session struct {
+	ID           uuid.UUID `json:"id"`
+	UserID       uuid.UUID `json:"user_id"`
+	RefreshToken string    `json:"refresh_token"`
+	UserAgent    string    `json:"user_agent"`
+	ClientIP     string    `json:"client_ip"`
+	IsBlocked    bool      `json:"is_blocked"`
+	CreatedAt    time.Time `json:"created_at"`
+	ExpiresAt    time.Time `json:"expires_at"`
+}
+
+type RedisRepository interface {
+	CreateSession(ctx context.Context, session *Session, duration time.Duration)
+	GetSession(ctx context.Context, sessionID uuid.UUID) (*Session, error)
+	DeleteSession(ctx context.Context, sessionID uuid.UUID) error
+}
+
+type RegisterInput struct {
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	PhoneNumber string `json:"phone_number"`
+}
+
+type LoginInput struct {
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	UserAgent string `json:"user_agent"`
+	ClientIP  string `json:"client_ip"`
+}
+
+type AuthResponse struct {
+	SessionID             uuid.UUID `json:"session_id"`
+	AccessToken           string    `json:"access_token"`
+	AccessTokenExpiresAt  time.Time `json:"access_token_expires_at"`
+	RefreshToken          string    `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time `json:"refresh_token_expires_at"`
+}
