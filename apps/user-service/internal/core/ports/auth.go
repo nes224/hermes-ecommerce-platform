@@ -19,9 +19,9 @@ type Session struct {
 }
 
 type RedisRepository interface {
-	CreateSession(ctx context.Context, session *Session, duration time.Duration)
-	GetSession(ctx context.Context, sessionID uuid.UUID) (*Session, error)
-	DeleteSession(ctx context.Context, sessionID uuid.UUID) error
+	CreateSession(ctx context.Context, session *Session, duration time.Duration) error
+	GetSession(ctx context.Context, id uuid.UUID) (*Session, error)
+	DeleteSession(ctx context.Context, id uuid.UUID) error
 }
 
 type RegisterInput struct {
@@ -30,6 +30,8 @@ type RegisterInput struct {
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
 	PhoneNumber string `json:"phone_number"`
+	UserAgent   string `json:"user_agent"`
+	ClientIP    string `json:"client_ip"`
 }
 
 type LoginInput struct {

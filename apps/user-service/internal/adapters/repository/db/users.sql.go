@@ -186,6 +186,33 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (GetUserByIDR
 	return i, err
 }
 
+const getUserForAuth = `-- name: GetUserForAuth :one
+SELECT id, email, password_hash, role, is_active
+FROM users
+WHERE email = $1 LIMIT 1
+`
+
+type GetUserForAuthRow struct {
+	ID           pgtype.UUID `json:"id"`
+	Email        string      `json:"email"`
+	PasswordHash string      `json:"password_hash"`
+	Role         UserRole    `json:"role"`
+	IsActive     bool        `json:"is_active"`
+}
+
+func (q *Queries) GetUserForAuth(ctx context.Context, email string) (GetUserForAuthRow, error) {
+	row := q.db.QueryRow(ctx, getUserForAuth, email)
+	var i GetUserForAuthRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.Role,
+		&i.IsActive,
+	)
+	return i, err
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT 
     id, email, first_name, last_name, phone_number, role, is_active, is_verified, last_login_at, created_at, updated_at

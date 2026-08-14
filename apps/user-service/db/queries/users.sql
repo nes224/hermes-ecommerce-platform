@@ -72,3 +72,8 @@ WHERE
     AND (sqlc.narg('role')::user_role IS NULL OR role = sqlc.narg('role'))
     AND (sqlc.narg('is_active')::boolean IS NULL OR is_active = sqlc.narg('is_active'))
     AND (sqlc.narg('is_verified')::boolean IS NULL OR is_verified = sqlc.narg('is_verified'));
+
+-- name: GetUserForAuth :one
+SELECT id, email, password_hash, role, is_active
+FROM users
+WHERE email = $1 LIMIT 1;
