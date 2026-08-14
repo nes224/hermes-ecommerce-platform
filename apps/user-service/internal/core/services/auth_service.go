@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"hermes-ecommerce-platform/apps/user-service/internal/adapters/repository/db"
 	"hermes-ecommerce-platform/apps/user-service/internal/core/ports"
@@ -114,4 +115,54 @@ func (s *AuthService) SignIn(ctx context.Context, input ports.RegisterInput) (*p
 		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
 	}, nil
+}
+
+func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*ports.AuthResponse, error) {
+	refreshPayload, err := s.tokenMaker.VerifyToken(refreshToken)
+	if err != nil {
+		return nil, fmt.Errorf("invalid or expired refresh token: %w", err)
+	}
+
+	session, err := s.sessionRepo.GetSession(ctx, refreshPayload.ID)
+	if err != nil {
+		return nil, fmt.Errorf("session not found or expired: %w", err)
+	}
+
+	if session.IsBlocked {
+		return nil, errors.New("blocked session")
+	}
+
+	if session.RefreshToken != refreshToken {
+		return nil, errors.New("mismatched session token")
+	}
+
+	user, err := s.userRepo.GetUserByID(ctx, pgtype.UUID{Bytes: session.UserID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create access token: %w", err)
+	}
+
+	userID, err := uuid.FromBytes(user.ID.Bytes[:])
+	if err != nil {
+		return nil, fmt.Errorf("invalid user id format: %w", err)
+	}
+
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(userID, string(user.Role), s.accessTokenDuration)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create access token: %w", err)
+	}
+
+	return &ports.AuthResponse{
+		SessionID:             session.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: session.ExpiresAt,
+	}, nil
+}
+
+func (s *AuthService) SignOut(ctx context.Context, sessionID uuid.UUID) error {
+	if err := s.sessionRepo.DeleteSession(ctx, sessionID); err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
+	return nil
 }
