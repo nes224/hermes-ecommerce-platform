@@ -32,7 +32,7 @@ func NewAuthService(userRepo db.Querier, sessionRepo ports.RedisRepository, toke
 	}
 }
 
-func (s *AuthService) SignUp(ctx context.Context, input ports.RegisterInput) (*db.User, error) {
+func (s *AuthService) SignUp(ctx context.Context, input *ports.RegisterInput) (*db.User, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *AuthService) SignUp(ctx context.Context, input ports.RegisterInput) (*d
 	}, err
 }
 
-func (s *AuthService) SignIn(ctx context.Context, input ports.RegisterInput) (*ports.AuthResponse, error) {
+func (s *AuthService) SignIn(ctx context.Context, input *ports.LoginInput) (*ports.AuthResponse, error) {
 	user, err := s.userRepo.GetUserForAuth(ctx, input.Email)
 	if err != nil {
 		return nil, fmt.Errorf("invalid email or password: %w", err)
@@ -160,7 +160,7 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*p
 	}, nil
 }
 
-func (s *AuthService) SignOut(ctx context.Context, sessionID uuid.UUID) error {
+func (s *AuthService) Logout(ctx context.Context, sessionID uuid.UUID) error {
 	if err := s.sessionRepo.DeleteSession(ctx, sessionID); err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)
 	}

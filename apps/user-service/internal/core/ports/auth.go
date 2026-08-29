@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"hermes-ecommerce-platform/apps/user-service/internal/adapters/repository/db"
 	"time"
 
 	"github.com/google/uuid"
@@ -47,4 +48,11 @@ type AuthResponse struct {
 	AccessTokenExpiresAt  time.Time `json:"access_token_expires_at"`
 	RefreshToken          string    `json:"refresh_token"`
 	RefreshTokenExpiresAt time.Time `json:"refresh_token_expires_at"`
+}
+
+type AuthService interface {
+	SignUp(ctx context.Context, input *RegisterInput) (*db.User, error)
+	SignIn(ctx context.Context, input *LoginInput) (*AuthResponse, error)
+	RefreshToken(ctx context.Context, refreshToken string) (*AuthResponse, error)
+	Logout(ctx context.Context, sessionID uuid.UUID) error
 }
