@@ -56,3 +56,14 @@ type AuthService interface {
 	RefreshToken(ctx context.Context, refreshToken string) (*AuthResponse, error)
 	Logout(ctx context.Context, sessionID uuid.UUID) error
 }
+
+type TokenClaims struct {
+	UserID    uuid.UUID `json:"user_id"`
+	SessionID uuid.UUID `json:"session_id"`
+	Role      string    `json:"role"`
+}
+
+type TokenService interface {
+	GenerateAccessToken(userID uuid.UUID, sessionID uuid.UUID, role string) (string, time.Time, error)
+	ValidateAccessToken(tokenStr string) (*TokenClaims, error)
+}

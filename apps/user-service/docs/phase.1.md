@@ -36,10 +36,10 @@
 - [✅] เขียน `Logout` -> Bind JSON -> Parse UUID -> เรียก `authService.Logout`
 
 ### 📌 Task 3: Local Integration & Testing
-- [ ] ตรวจสอบ `docker-compose.yml` (Postgres 16, Redis 7)
-- [ ] รัน Database Migration (`golang-migrate`)
-- [ ] ทดสอบสั่ง `go build ./...` และ `go run apps/user-service/cmd/api/main.go`
-- [ ] ยิง End-to-End Test ด้วย Postman / cURL (Signup -> Signin -> Refresh -> Logout)
+- [✅] ตรวจสอบ `docker-compose.yml` (Postgres 16, Redis 7)
+- [✅] รัน Database Migration (`golang-migrate`)
+- [✅] ทดสอบสั่ง `go build ./...` และ `go run apps/user-service/cmd/api/main.go`
+- [✅] ยิง End-to-End Test ด้วย Postman / cURL (Signup -> Signin -> Refresh -> Logout)
 
 ---
 
