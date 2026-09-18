@@ -77,3 +77,12 @@ WHERE
 SELECT id, email, password_hash, role, is_active
 FROM users
 WHERE email = $1 LIMIT 1;
+
+-- name: UpdateUser :exec
+UPDATE users
+SET 
+    first_name = $2,
+    last_name = $3,
+    phone_number = $4,
+    updated_at = NOW()
+WHERE id = $1;

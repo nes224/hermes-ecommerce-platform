@@ -78,7 +78,7 @@ func (s *AuthService) SignIn(ctx context.Context, input *ports.LoginInput) (*por
 		return nil, fmt.Errorf("invalid email or password: %w", err)
 	}
 
-	userID, err := uuid.FromBytes(user.ID.Bytes[:])
+	userID, err := uuid.FromBytes(user.ID[:])
 	if err != nil {
 		return nil, fmt.Errorf("invalid user id format: %w", err)
 	}
@@ -136,12 +136,12 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*p
 		return nil, errors.New("mismatched session token")
 	}
 
-	user, err := s.userRepo.GetUserByID(ctx, pgtype.UUID{Bytes: session.UserID, Valid: true})
+	user, err := s.userRepo.GetUserByID(ctx, session.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create access token: %w", err)
 	}
 
-	userID, err := uuid.FromBytes(user.ID.Bytes[:])
+	userID, err := uuid.FromBytes(user.ID[:])
 	if err != nil {
 		return nil, fmt.Errorf("invalid user id format: %w", err)
 	}

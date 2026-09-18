@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -69,7 +70,7 @@ type CreateUserParams struct {
 }
 
 type CreateUserRow struct {
-	ID          pgtype.UUID        `json:"id"`
+	ID          uuid.UUID          `json:"id"`
 	Email       string             `json:"email"`
 	FirstName   string             `json:"first_name"`
 	LastName    string             `json:"last_name"`
@@ -115,7 +116,7 @@ WHERE email = $1 LIMIT 1
 `
 
 type GetUserByEmailRow struct {
-	ID          pgtype.UUID        `json:"id"`
+	ID          uuid.UUID          `json:"id"`
 	Email       string             `json:"email"`
 	FirstName   string             `json:"first_name"`
 	LastName    string             `json:"last_name"`
@@ -154,7 +155,7 @@ WHERE id = $1 LIMIT 1
 `
 
 type GetUserByIDRow struct {
-	ID          pgtype.UUID        `json:"id"`
+	ID          uuid.UUID          `json:"id"`
 	Email       string             `json:"email"`
 	FirstName   string             `json:"first_name"`
 	LastName    string             `json:"last_name"`
@@ -167,7 +168,7 @@ type GetUserByIDRow struct {
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (GetUserByIDRow, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (GetUserByIDRow, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i GetUserByIDRow
 	err := row.Scan(
@@ -193,11 +194,11 @@ WHERE email = $1 LIMIT 1
 `
 
 type GetUserForAuthRow struct {
-	ID           pgtype.UUID `json:"id"`
-	Email        string      `json:"email"`
-	PasswordHash string      `json:"password_hash"`
-	Role         UserRole    `json:"role"`
-	IsActive     bool        `json:"is_active"`
+	ID           uuid.UUID `json:"id"`
+	Email        string    `json:"email"`
+	PasswordHash string    `json:"password_hash"`
+	Role         UserRole  `json:"role"`
+	IsActive     bool      `json:"is_active"`
 }
 
 func (q *Queries) GetUserForAuth(ctx context.Context, email string) (GetUserForAuthRow, error) {
@@ -251,7 +252,7 @@ type ListUsersParams struct {
 }
 
 type ListUsersRow struct {
-	ID          pgtype.UUID        `json:"id"`
+	ID          uuid.UUID          `json:"id"`
 	Email       string             `json:"email"`
 	FirstName   string             `json:"first_name"`
 	LastName    string             `json:"last_name"`
@@ -303,4 +304,31 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET 
+    first_name = $2,
+    last_name = $3,
+    phone_number = $4,
+    updated_at = NOW()
+WHERE id = $1
+`
+
+type UpdateUserParams struct {
+	ID          uuid.UUID   `json:"id"`
+	FirstName   string      `json:"first_name"`
+	LastName    string      `json:"last_name"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser,
+		arg.ID,
+		arg.FirstName,
+		arg.LastName,
+		arg.PhoneNumber,
+	)
+	return err
 }

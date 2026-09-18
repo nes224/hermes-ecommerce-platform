@@ -3,7 +3,7 @@ export
 
 MIGRATION_PATH = db/migrations
 
-.PHONY: migrate-up migrate-down migrate-up1 migrate-down1 migrate-create
+.PHONY: migrate-up migrate-down migrate-up1 migrate-down1 migrate-create sqlc
 # Generate Go code from SQL queries
 sqlc:
 	sqlc generate
